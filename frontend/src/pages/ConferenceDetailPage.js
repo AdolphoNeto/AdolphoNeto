@@ -135,6 +135,8 @@ const ConferenceDetailPage = () => {
                 <SelectItem value="not_found">Não Encontrados</SelectItem>
                 <SelectItem value="found_both_match">Ambas Bases - OK</SelectItem>
                 <SelectItem value="found_both_divergence">Ambas Bases - Div.</SelectItem>
+                <SelectItem value="duplicate">ID Duplicado</SelectItem>
+                <SelectItem value="duplicate_divergence">Duplicado c/ Div.</SelectItem>
               </SelectContent>
             </Select>
             <Button variant="outline" size="sm" data-testid="export-button">

@@ -1,4 +1,4 @@
-import { CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertCircle, Copy } from 'lucide-react';
 
 const StatusBadge = ({ status }) => {
   const configs = {
@@ -26,6 +26,17 @@ const StatusBadge = ({ status }) => {
       icon: AlertCircle,
       label: 'Ambas Bases - Divergência',
       className: 'status-badge divergence',
+    },
+    duplicate: {
+      icon: Copy,
+      label: 'ID Duplicado',
+      className: 'status-badge',
+      style: { backgroundColor: 'rgba(139, 92, 246, 0.1)', color: '#8B5CF6' },
+    },
+    duplicate_divergence: {
+      icon: Copy,
+      label: 'Duplicado c/ Divergência',
+      className: 'status-badge error',
     },
     processing: {
       icon: AlertCircle,
