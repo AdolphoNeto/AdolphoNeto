@@ -64,24 +64,7 @@ class ValidationEngine:
         if self.cubo_df is None or self.log2_df is None or self.log3_df is None:
             return results, stats
         
-        log2_ids = set()
-        log3_ids = set()
-        
-        if 'Número de carga' in self.log2_df.columns:
-            for idx, row in self.log2_df.iterrows():
-                id_val = self.normalize_id(row.get('Número de carga'))
-                if id_val:
-                    if id_val in log2_ids:
-                        stats['duplicates'] += 1
-                    log2_ids.add(id_val)
-        
-        if 'ID Cliente' in self.log3_df.columns:
-            for idx, row in self.log3_df.iterrows():
-                id_val = self.normalize_id(row.get('ID Cliente'))
-                if id_val:
-                    if id_val in log3_ids:
-                        stats['duplicates'] += 1
-                    log3_ids.add(id_val)
+        seen_ids = {}
         
         for idx, cubo_row in self.cubo_df.iterrows():
             stats['total_records'] += 1
@@ -90,59 +73,101 @@ class ValidationEngine:
             guia = str(cubo_row.get('Guia CEM', '')).strip()
             cubo_id = f"{serie}-{guia}"
             
+            if cubo_id in seen_ids:
+                stats['duplicates'] += 1
+            seen_ids[cubo_id] = True
+            
             issues = []
             matched = []
-            status = "match"
+            status = "not_found"
+            found_in = []
             
-            peso_liquido = cubo_row.get('Peso Liquido', 0)
-            if pd.notna(peso_liquido) and peso_liquido > 0:
-                peso_liquido = float(peso_liquido)
+            cubo_volume = cubo_row.get('Peso Liquido', 0)
+            if pd.notna(cubo_volume):
+                cubo_volume = float(cubo_volume)
             else:
-                peso_liquido = 0
+                cubo_volume = 0
             
             log2_match = None
             log3_match = None
             
             if 'Número de carga' in self.log2_df.columns:
                 for _, log2_row in self.log2_df.iterrows():
-                    log2_id = self.normalize_id(log2_row.get('Número de carga'))
-                    if log2_id and log2_id in cubo_id:
-                        log2_match = log2_row.to_dict()
+                    log2_id = str(log2_row.get('Número de carga', '')).strip()
+                    if log2_id and log2_id == cubo_id:
+                        log2_match = log2_row
+                        found_in.append("Log 2")
                         break
             
             if 'ID Cliente' in self.log3_df.columns:
                 for _, log3_row in self.log3_df.iterrows():
-                    log3_id = self.normalize_id(log3_row.get('ID Cliente'))
-                    if log3_id and log3_id in cubo_id:
-                        log3_match = log3_row.to_dict()
+                    log3_id = str(log3_row.get('ID Cliente', '')).strip()
+                    if log3_id and log3_id == cubo_id:
+                        log3_match = log3_row
+                        found_in.append("Log 3")
                         break
             
             if log2_match is None and log3_match is None:
-                issues.append("Registro não encontrado nos logs")
-                status = "divergence"
+                status = "not_found"
+                issues.append("Valor não encontrado em nenhuma das bases")
                 stats['divergences'] += 1
             else:
-                if log2_match:
-                    matched.append({"source": "Log 2", "data": str(log2_match)})
-                if log3_match:
-                    matched.append({"source": "Log 3", "data": str(log3_match)})
+                has_divergence = False
                 
-                if log2_match and 'Volume Sólido' in log2_match:
+                if log2_match is not None:
                     log2_volume = self.normalize_volume(log2_match.get('Volume Sólido'))
-                    tolerance = 5.0
-                    if abs(log2_volume - peso_liquido) > tolerance:
-                        issues.append(f"Divergência de volume: Cubo={peso_liquido:.2f} vs Log2={log2_volume:.2f}")
-                        status = "divergence"
-                        stats['divergences'] += 1
+                    volume_diff = abs(log2_volume - cubo_volume)
+                    
+                    matched.append({
+                        "source": "Log 2",
+                        "id": str(log2_match.get('Número de carga', '')),
+                        "volume": log2_volume
+                    })
+                    
+                    if volume_diff > 0.01:
+                        has_divergence = True
+                        issues.append(f"Divergência Log 2: Volume Cubo={cubo_volume:.2f} vs Log2={log2_volume:.2f} (diff={volume_diff:.2f})")
                 
-                if len(matched) > 0 and len(issues) == 0:
+                if log3_match is not None:
+                    log3_volume = self.normalize_volume(log3_match.get('Volume Sólido'))
+                    volume_diff = abs(log3_volume - cubo_volume)
+                    
+                    matched.append({
+                        "source": "Log 3",
+                        "id": str(log3_match.get('ID Cliente', '')),
+                        "volume": log3_volume
+                    })
+                    
+                    if volume_diff > 0.01:
+                        has_divergence = True
+                        issues.append(f"Divergência Log 3: Volume Cubo={cubo_volume:.2f} vs Log3={log3_volume:.2f} (diff={volume_diff:.2f})")
+                
+                if len(found_in) == 2:
+                    if has_divergence:
+                        status = "found_both_divergence"
+                        issues.append("Encontrado em ambas as bases com divergência de volume")
+                        stats['divergences'] += 1
+                    else:
+                        status = "found_both_match"
+                        issues.append("Encontrado em ambas as bases com volumes corretos")
+                        stats['matches'] += 1
+                elif has_divergence:
+                    status = "divergence"
+                    stats['divergences'] += 1
+                else:
+                    status = "match"
                     stats['matches'] += 1
             
             result = {
                 "record_id": cubo_id,
                 "source_type": "Cubo 160",
                 "status": status,
-                "data": cubo_row.to_dict(),
+                "data": {
+                    "serie": serie,
+                    "guia_cem": guia,
+                    "volume": cubo_volume,
+                    "found_in": ", ".join(found_in) if found_in else "Nenhuma"
+                },
                 "issues": issues,
                 "matched_records": matched
             }

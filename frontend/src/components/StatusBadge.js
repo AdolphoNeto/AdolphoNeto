@@ -4,7 +4,7 @@ const StatusBadge = ({ status }) => {
   const configs = {
     match: {
       icon: CheckCircle2,
-      label: 'Conferido',
+      label: 'Correto',
       className: 'status-badge match',
     },
     divergence: {
@@ -12,10 +12,20 @@ const StatusBadge = ({ status }) => {
       label: 'Divergência',
       className: 'status-badge divergence',
     },
-    error: {
+    not_found: {
       icon: XCircle,
-      label: 'Erro',
+      label: 'Não Encontrado',
       className: 'status-badge error',
+    },
+    found_both_match: {
+      icon: CheckCircle2,
+      label: 'Ambas Bases - OK',
+      className: 'status-badge match',
+    },
+    found_both_divergence: {
+      icon: AlertCircle,
+      label: 'Ambas Bases - Divergência',
+      className: 'status-badge divergence',
     },
     processing: {
       icon: AlertCircle,
@@ -27,6 +37,11 @@ const StatusBadge = ({ status }) => {
       icon: CheckCircle2,
       label: 'Concluído',
       className: 'status-badge match',
+    },
+    error: {
+      icon: XCircle,
+      label: 'Erro',
+      className: 'status-badge error',
     },
   };
 

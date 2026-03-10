@@ -130,8 +130,11 @@ const ConferenceDetailPage = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="match">Matches</SelectItem>
+                <SelectItem value="match">Corretos</SelectItem>
                 <SelectItem value="divergence">Divergências</SelectItem>
+                <SelectItem value="not_found">Não Encontrados</SelectItem>
+                <SelectItem value="found_both_match">Ambas Bases - OK</SelectItem>
+                <SelectItem value="found_both_divergence">Ambas Bases - Div.</SelectItem>
               </SelectContent>
             </Select>
             <Button variant="outline" size="sm" data-testid="export-button">
@@ -146,10 +149,10 @@ const ConferenceDetailPage = () => {
             <thead className="bg-muted sticky top-0">
               <tr className="border-b border-border">
                 <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase">ID</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase">Fonte</th>
+                <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase">Volume</th>
+                <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase">Encontrado Em</th>
                 <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase">Status</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase">Issues</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase">Matches</th>
+                <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase">Detalhes</th>
               </tr>
             </thead>
             <tbody>
@@ -159,29 +162,35 @@ const ConferenceDetailPage = () => {
                   data-testid={`result-row-${idx}`}
                   className="border-b border-border hover:bg-muted/50 transition"
                 >
-                  <td className="p-3 text-sm">{result.record_id}</td>
-                  <td className="p-3 text-sm">{result.source_type}</td>
+                  <td className="p-3 text-sm font-mono">{result.record_id}</td>
+                  <td className="p-3 text-sm font-mono">
+                    {result.data?.volume ? result.data.volume.toFixed(2) : '-'}
+                  </td>
+                  <td className="p-3 text-sm">
+                    {result.data?.found_in || '-'}
+                  </td>
                   <td className="p-3">
                     <StatusBadge status={result.status} />
                   </td>
                   <td className="p-3 text-sm">
                     {result.issues.length > 0 ? (
-                      <ul className="list-disc list-inside text-secondary">
+                      <ul className="space-y-1">
                         {result.issues.map((issue, i) => (
-                          <li key={i} className="text-xs">{issue}</li>
+                          <li key={i} className="text-xs text-muted-foreground">{issue}</li>
                         ))}
                       </ul>
                     ) : (
-                      <span className="text-muted-foreground text-xs">-</span>
-                    )}
-                  </td>
-                  <td className="p-3 text-sm">
-                    {result.matched_records.length > 0 ? (
-                      <span className="text-success text-xs">
-                        {result.matched_records.length} match(es)
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground text-xs">-</span>
+                      result.matched_records.length > 0 ? (
+                        <div className="text-xs text-success">
+                          {result.matched_records.map((m, i) => (
+                            <div key={i}>
+                              {m.source}: Vol {m.volume?.toFixed(2)}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">-</span>
+                      )
                     )}
                   </td>
                 </tr>
