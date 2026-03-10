@@ -13,18 +13,27 @@ class ValidationEngine:
         df = pd.read_excel(file_path, header=1)
         df.columns = df.columns.str.strip()
         self.log2_df = df
+        print(f"[DEBUG] Log 2 colunas: {list(df.columns)}")
+        if 'Número de carga' in df.columns:
+            print(f"[DEBUG] Primeiros 3 IDs Log 2: {list(df['Número de carga'].head(3))}")
         return len(df)
     
     def load_log3(self, file_path: str):
         df = pd.read_excel(file_path, header=1)
         df.columns = df.columns.str.strip()
         self.log3_df = df
+        print(f"[DEBUG] Log 3 colunas: {list(df.columns)}")
+        if 'ID Cliente' in df.columns:
+            print(f"[DEBUG] Primeiros 3 IDs Log 3: {list(df['ID Cliente'].head(3))}")
         return len(df)
     
     def load_cubo160(self, file_path: str):
         df = pd.read_excel(file_path, header=1)
         df.columns = df.columns.str.strip()
         self.cubo_df = df
+        print(f"[DEBUG] Cubo 160 colunas: {list(df.columns)}")
+        print(f"[DEBUG] Primeiras 3 linhas:")
+        print(df.head(3))
         return len(df)
     
     def normalize_id(self, value: Any) -> str:
@@ -83,9 +92,40 @@ class ValidationEngine:
         for idx, cubo_row in self.cubo_df.iterrows():
             stats['total_records'] += 1
             
-            serie = str(cubo_row.get('Serie', '')).strip()
-            guia = str(cubo_row.get('Guia CEM', '')).strip()
-            cubo_id = f"{serie}-{guia}"
+            # Tentar encontrar as colunas corretas (com ou sem acentos/espaços)
+            serie_col = None
+            guia_col = None
+            
+            for col in self.cubo_df.columns:
+                col_lower = col.lower()
+                if 'serie' in col_lower or 'série' in col_lower:
+                    serie_col = col
+                if 'guia' in col_lower and ('cem' in col_lower or 'ceem' in col_lower):
+                    guia_col = col
+            
+            if not serie_col or not guia_col:
+                print(f"[ERRO] Colunas não encontradas. Colunas disponíveis: {list(self.cubo_df.columns)}")
+                serie = ""
+                guia = ""
+            else:
+                serie_val = cubo_row.get(serie_col, '')
+                guia_val = cubo_row.get(guia_col, '')
+                
+                # Converter para string e limpar
+                if pd.isna(serie_val):
+                    serie = ""
+                else:
+                    serie = str(int(float(serie_val))) if isinstance(serie_val, (int, float)) else str(serie_val).strip()
+                
+                if pd.isna(guia_val):
+                    guia = ""
+                else:
+                    guia = str(int(float(guia_val))) if isinstance(guia_val, (int, float)) else str(guia_val).strip()
+            
+            cubo_id = f"{serie}-{guia}" if serie and guia else ""
+            
+            if idx < 3:
+                print(f"[DEBUG] Linha {idx}: Serie={serie}, Guia={guia}, ID={cubo_id}")
             
             if cubo_id in seen_cubo_ids:
                 stats['duplicates'] += 1
