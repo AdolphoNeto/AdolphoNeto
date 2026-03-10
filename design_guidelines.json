@@ -1,0 +1,120 @@
+{
+  "project_name": "WoodTech Validation System",
+  "design_philosophy": {
+    "persona": "E1: The Anti-AI Designer",
+    "core_concept": "Digital Forestry",
+    "vibe": "Precision meets Nature. High-density data presented with organic calm.",
+    "principles": [
+      "Fusion: Industrial reliability (Swiss Style) + Organic warmth (Forest tones)",
+      "Density: Maximize data visibility without clutter. Use 'Twinlist' patterns for validation.",
+      "Clarity: Divergences must scream (Orange/Red), Matches must whisper (Green/Grey)."
+    ]
+  },
+  "typography": {
+    "font_providers": ["Google Fonts"],
+    "headings": {
+      "family": "Manrope",
+      "weights": ["600", "700"],
+      "usage": "Page titles, Section headers, KPI values",
+      "fallbacks": ["sans-serif"]
+    },
+    "body": {
+      "family": "Inter",
+      "weights": ["400", "500"],
+      "usage": "General text, labels, navigation",
+      "fallbacks": ["sans-serif"]
+    },
+    "mono": {
+      "family": "JetBrains Mono",
+      "weights": ["400", "500"],
+      "usage": "Log IDs, Data cells, Numerical values in tables",
+      "fallbacks": ["monospace"]
+    }
+  },
+  "colors": {
+    "theme": "light",
+    "palette": {
+      "primary": {
+        "DEFAULT": "#1A3C34",
+        "foreground": "#FFFFFF",
+        "description": "Deep Forest Green - Main Brand Color, Sidebars, Primary Buttons"
+      },
+      "secondary": {
+        "DEFAULT": "#F97316",
+        "foreground": "#FFFFFF",
+        "description": "Safety Orange - Actions, Alerts, Divergences"
+      },
+      "background": "#F4F5F4",
+      "surface": "#FFFFFF",
+      "border": "#E2E8F0",
+      "muted": "#F1F5F9",
+      "success": "#10B981",
+      "error": "#EF4444",
+      "warning": "#F59E0B"
+    }
+  },
+  "layout_strategy": {
+    "grid_system": "Bento Grid (Tailwind)",
+    "spacing_scale": "Generous (p-6 to p-12)",
+    "container_style": "Card-based with 1px border, no shadow (Flat Technical Look)",
+    "radius": "rounded-lg"
+  },
+  "components": {
+    "interactive": "Shadcn UI (Heavily Customized)",
+    "charts": "Recharts (Styled with custom tooltip and minimal axes)",
+    "icons": "Lucide React",
+    "special_components": [
+      {
+        "name": "TwinlistValidator",
+        "description": "Side-by-side comparison view for SGF vs WoodTech logs. Highlight diffs in Orange."
+      },
+      {
+        "name": "KPICard",
+        "description": "Bento-style card with icon, big metric, and sparkline."
+      },
+      {
+        "name": "StatusBadge",
+        "description": "Pill-shaped, low-opacity background, dot indicator."
+      }
+    ]
+  },
+  "visual_enhancers": {
+    "textures": "Subtle noise on solid backgrounds to reduce digital sterility.",
+    "gradients": "None. Use solid blocks of color.",
+    "shadows": "None or extremely subtle 'sm' for dropdowns only.",
+    "borders": "1px solid border-border everywhere. 'Grid Borders' style for dashboards."
+  },
+  "images": {
+    "auth_background": {
+      "url": "https://images.unsplash.com/photo-1762857995681-39f4ddb00e9f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzd8MHwxfHNlYXJjaHw0fHxmb3Jlc3RyeSUyMGxvZ2dpbmclMjBvcGVyYXRpb25zJTIwdGltYmVyJTIwdHJ1Y2t8ZW58MHx8fHwxNzczMTQ4ODkxfDA&ixlib=rb-4.1.0&q=85",
+      "description": "Truck carrying large bamboo stalks/logs. Use with heavy #1A3C34 overlay (90% opacity) on Auth screens.",
+      "category": "background"
+    },
+    "hero_texture": {
+      "url": "https://images.unsplash.com/photo-1767206424731-781dba2f5302?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NjV8MHwxfHNlYXJjaHwxfHxzdGFja2VkJTIwd29vZCUyMGxvZ3MlMjB0ZXh0dXJlJTIwbmF0dXJhbHxlbnwwfHx8fDE3NzMxNDg4OTJ8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Stack of cut logs. Use for 'Empty State' or '404' pages.",
+      "category": "texture"
+    },
+    "user_avatar": {
+      "url": "https://images.unsplash.com/photo-1624640010799-7cdb3b4b1ae1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBpbmR1c3RyaWFsJTIwd29ya2VyJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzczMTQ4ODkzfDA&ixlib=rb-4.1.0&q=85",
+      "description": "Professional industrial worker. Placeholder for user profile.",
+      "category": "avatar"
+    }
+  },
+  "universal_guidelines": [
+    "Do NOT use gradients.",
+    "Do NOT use 'Inter' for Headings. Use 'Manrope'.",
+    "All interactive elements must have `data-testid`.",
+    "Use `sonner` for toasts.",
+    "Table headers must be sticky.",
+    "Validation errors must be prominent (Orange/Red).",
+    "Primary buttons should be Forest Green (#1A3C34). Destructive/Alert buttons should be Orange (#F97316)."
+  ],
+  "instructions_to_main_agent": [
+    "Install 'Manrope' and 'JetBrains Mono' via Google Fonts in index.css.",
+    "Update tailwind.config.js with the custom colors (Forest Green, Safety Orange).",
+    "Create the Auth page with the split-screen layout (Image on right).",
+    "Build the Dashboard using a Bento Grid layout.",
+    "Implement the 'Twinlist' comparison view for the Validation page."
+  ]
+}
