@@ -10,28 +10,31 @@ class ValidationEngine:
         self.cubo_df = None
     
     def load_log2(self, file_path: str):
-        df = pd.read_excel(file_path, header=1)
+        df = pd.read_excel(file_path, header=0)
         df.columns = df.columns.str.strip()
         self.log2_df = df
         print(f"[DEBUG] Log 2 colunas: {list(df.columns)}")
-        if 'Número de carga' in df.columns:
-            print(f"[DEBUG] Primeiros 3 IDs Log 2: {list(df['Número de carga'].head(3))}")
+        print(f"[DEBUG] Total de linhas: {len(df)}")
+        if len(df.columns) > 3:
+            print(f"[DEBUG] Primeiros 3 IDs Log 2: {list(df.iloc[:, 3].head(3))}")
         return len(df)
     
     def load_log3(self, file_path: str):
-        df = pd.read_excel(file_path, header=1)
+        df = pd.read_excel(file_path, header=0)
         df.columns = df.columns.str.strip()
         self.log3_df = df
         print(f"[DEBUG] Log 3 colunas: {list(df.columns)}")
-        if 'ID Cliente' in df.columns:
-            print(f"[DEBUG] Primeiros 3 IDs Log 3: {list(df['ID Cliente'].head(3))}")
+        print(f"[DEBUG] Total de linhas: {len(df)}")
+        if len(df.columns) > 3:
+            print(f"[DEBUG] Primeiros 3 IDs Log 3: {list(df.iloc[:, 3].head(3))}")
         return len(df)
     
     def load_cubo160(self, file_path: str):
-        df = pd.read_excel(file_path, header=1)
+        df = pd.read_excel(file_path, header=0)
         df.columns = df.columns.str.strip()
         self.cubo_df = df
         print(f"[DEBUG] Cubo 160 colunas: {list(df.columns)}")
+        print(f"[DEBUG] Total de linhas: {len(df)}")
         print(f"[DEBUG] Primeiras 3 linhas:")
         print(df.head(3))
         return len(df)
@@ -115,12 +118,21 @@ class ValidationEngine:
                 if pd.isna(serie_val):
                     serie = ""
                 else:
+                    # Serie é sempre inteiro
                     serie = str(int(float(serie_val))) if isinstance(serie_val, (int, float)) else str(serie_val).strip()
                 
                 if pd.isna(guia_val):
                     guia = ""
                 else:
-                    guia = str(int(float(guia_val))) if isinstance(guia_val, (int, float)) else str(guia_val).strip()
+                    # Guia CEM pode vir como float (5.547) mas precisa virar "5547"
+                    if isinstance(guia_val, (int, float)):
+                        # Se é float tipo 5.547, multiplicar por 1000 para virar 5547
+                        if guia_val < 1000:
+                            guia = str(int(guia_val * 1000))
+                        else:
+                            guia = str(int(guia_val))
+                    else:
+                        guia = str(guia_val).strip().replace(".", "")
             
             cubo_id = f"{serie}-{guia}" if serie and guia else ""
             
