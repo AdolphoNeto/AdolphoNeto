@@ -161,7 +161,8 @@ class ValidationEngine:
             if 'Número de carga' in self.log2_df.columns:
                 for _, log2_row in self.log2_df.iterrows():
                     log2_id = str(log2_row.get('Número de carga', '')).strip()
-                    if log2_id and log2_id == cubo_id:
+                    # Procurar o cubo_id DENTRO do log2_id ou vice-versa
+                    if log2_id and cubo_id and (cubo_id in log2_id or log2_id in cubo_id):
                         log2_matches.append(log2_row)
                 
                 if len(log2_matches) > 0:
@@ -174,7 +175,8 @@ class ValidationEngine:
             if 'ID Cliente' in self.log3_df.columns:
                 for _, log3_row in self.log3_df.iterrows():
                     log3_id = str(log3_row.get('ID Cliente', '')).strip()
-                    if log3_id and log3_id == cubo_id:
+                    # Procurar o cubo_id DENTRO do log3_id ou vice-versa
+                    if log3_id and cubo_id and (cubo_id in log3_id or log3_id in cubo_id):
                         log3_matches.append(log3_row)
                 
                 if len(log3_matches) > 0:
